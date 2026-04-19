@@ -1,9 +1,33 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.30)
 project(LearnCpp)
 
-# 设定 C++ 标准为 C++17（或者 20）
-set(CMAKE_CXX_STANDARD 17)
+# 设定 C++ 标准为 C++23）
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 开启最高级性能优化 (极其重要！)
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
+endif()
+
+# 魔法：自动从 GitHub 下载 Abseil 库，不需要你手动安装！
+include(FetchContent)
+FetchContent_Declare(
+  absl
+  URL https://github.com/abseil/abseil-cpp/archive/refs/tags/20240116.1.tar.gz
+)
+FetchContent_MakeAvailable(absl)
+
+
+# 自动下载 CTRE (新增的)
+FetchContent_Declare(
+    ctre
+    URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.8.1.tar.gz
+)
+FetchContent_MakeAvailable(ctre)
+
 
 # 魔法开始：自动查找当前目录下所有的 .cpp 文件
 file(GLOB SOURCES "*.cpp")
@@ -15,4 +39,17 @@ foreach(source IN LISTS SOURCES)
     
     # 为每个文件单独生成一个可执行文件
     add_executable(${target_name} ${source})
+
+    # 关键逻辑：如果你这个文件的名字里包含 "02_unordered_map_perf"
+    # 我们就自动给它链接上 Abseil 的哈希表库
+    if(${target_name} MATCHES "02_unordered_map_perf")
+        target_link_libraries(${target_name} PRIVATE absl::flat_hash_map)
+        message(STATUS "已为目标 [${target_name}] 链接 Abseil 库")
+    endif()
+
+    # 规则 B：如果文件名包含 "ctre"，链接 CTRE
+    if(${target_name} MATCHES "ctre")
+        target_link_libraries(${target_name} PRIVATE ctre)
+        message(STATUS "已为目标 [${target_name}] 链接 CTRE 库")
+    endif()
 endforeach()
