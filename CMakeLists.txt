@@ -35,6 +35,8 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
+find_package(Threads REQUIRED)
+
 # 魔法开始：自动查找当前目录下所有的 .cpp 文件
 file(GLOB SOURCES "*.cpp")
 
@@ -63,5 +65,42 @@ foreach(source IN LISTS SOURCES)
     if(${target_name} MATCHES "fmt")
         target_link_libraries(${target_name} PRIVATE fmt::fmt)
         message(STATUS "已为目标 [${target_name}] 链接 fmt 库")
+    endif()
+
+    if(${target_name} MATCHES "allocator_bench")
+        # =================================================================
+        # 内存分配器压测配置 (ptmalloc vs tcmalloc vs jemalloc)
+        # =================================================================
+
+        # 强制开启 C++14 的 sized-deallocation 优化 (GCC/Clang 默认 C++17 开启，明确写上更安全)
+        # add_compile_options(-fsized-deallocation -O3)
+
+        # 寻找系统中的 TCMalloc 和 Jemalloc 库
+        find_library(TCMALLOC_LIB tcmalloc)
+        find_library(JEMALLOC_LIB jemalloc)
+
+        # 1. 默认分配器目标 (ptmalloc, glibc 自带)
+        add_executable(bench_ptmalloc 20_allocator_bench.cpp)
+        target_link_libraries(bench_ptmalloc Threads::Threads)
+        message(STATUS "已生成目标: bench_ptmalloc (glibc default)")
+
+        # 2. TCMalloc 目标
+        if(TCMALLOC_LIB)
+            add_executable(bench_tcmalloc 20_allocator_bench.cpp)
+            # 静态/动态链接 tcmalloc 库会接管默认的 new/delete
+            target_link_libraries(bench_tcmalloc Threads::Threads ${TCMALLOC_LIB})
+            message(STATUS "已生成目标: bench_tcmalloc 链接到 ${TCMALLOC_LIB}")
+        else()
+            message(WARNING "未找到 tcmalloc，跳过 bench_tcmalloc 构建")
+        endif()
+
+        # 3. Jemalloc 目标
+        if(JEMALLOC_LIB)
+            add_executable(bench_jemalloc 20_allocator_bench.cpp)
+            target_link_libraries(bench_jemalloc Threads::Threads ${JEMALLOC_LIB})
+            message(STATUS "已生成目标: bench_jemalloc 链接到 ${JEMALLOC_LIB}")
+        else()
+            message(WARNING "未找到 jemalloc，跳过 bench_jemalloc 构建")
+        endif()
     endif()
 endforeach()
