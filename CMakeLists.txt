@@ -29,6 +29,12 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(ctre)
 
 
+FetchContent_Declare(
+    fmt
+    URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.tar.gz
+)
+FetchContent_MakeAvailable(fmt)
+
 # 魔法开始：自动查找当前目录下所有的 .cpp 文件
 file(GLOB SOURCES "*.cpp")
 
@@ -42,7 +48,7 @@ foreach(source IN LISTS SOURCES)
 
     # 关键逻辑：如果你这个文件的名字里包含 "02_unordered_map_perf"
     # 我们就自动给它链接上 Abseil 的哈希表库
-    if(${target_name} MATCHES "02_unordered_map_perf")
+    if(${target_name} MATCHES "absl")
         target_link_libraries(${target_name} PRIVATE absl::flat_hash_map)
         message(STATUS "已为目标 [${target_name}] 链接 Abseil 库")
     endif()
@@ -51,5 +57,11 @@ foreach(source IN LISTS SOURCES)
     if(${target_name} MATCHES "ctre")
         target_link_libraries(${target_name} PRIVATE ctre)
         message(STATUS "已为目标 [${target_name}] 链接 CTRE 库")
+    endif()
+
+    # 规则 C：如果文件名包含 "fmt"，链接 fmt
+    if(${target_name} MATCHES "fmt")
+        target_link_libraries(${target_name} PRIVATE fmt::fmt)
+        message(STATUS "已为目标 [${target_name}] 链接 fmt 库")
     endif()
 endforeach()

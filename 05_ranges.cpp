@@ -42,5 +42,32 @@ int main() {
         std::cout << x << " "; // 输出: 4 16 36
     }
     std::cout << "\n";
+
+    // ===View 的另一个用法
+
+    const std::vector<std::tuple<int, char, std::string_view, std::string_view>> vt
+    {
+        {1, 'A', "α", "甲"},
+        {2, 'B', "β", "乙"},
+        {3, 'C', "γ", "丙"},
+        {4, 'D', "δ", "丁"},
+        {5, 'E', "ε", "戊"},
+    };
+    
+    for (int const e : std::views::elements<0>(vt))
+        std::cout << e << ' ';
+    std::cout << '\n';
+    
+    for (char const e : vt | std::views::elements<1>)
+        std::cout << e << ' ';
+    std::cout << '\n';
+    
+    for (std::string_view const& e : std::views::elements<2>(vt))
+        std::cout << e << ' ';
+    std::cout << '\n';
+    
+    for (const auto& e : std::views::elements<3>(vt))
+        std::cout << e << ' ';
+    std::cout << '\n';
     return 0;
 }
