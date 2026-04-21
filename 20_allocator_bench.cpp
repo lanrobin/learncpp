@@ -8,8 +8,8 @@
 /**
  
 sudo apt update
-sudo apt install libtcmalloc-minimal4 libgoogle-perftools-dev
-sudo apt install libjemalloc-dev
+sudo apt install libtcmalloc-minimal4 libgoogle-perftools-dev libjemalloc-dev -y
+sudo apt install 
 
  */
 
@@ -18,7 +18,7 @@ struct alignas(64) Payload {
     uint64_t data[8];
 };
 
-const int NUM_THREADS = 8;         // 模拟 8 核心并发
+const int NUM_THREADS = 12;         // 模拟 12 核心并发
 const int ALLOC_PER_THREAD = 500000; // 每个线程分配 50 万次
 
 // ==========================================
@@ -58,6 +58,13 @@ void bench_sized_delete() {
 // 执行多线程压测的包装函数
 template <typename Func>
 void run_benchmark(const std::string& name, Func func) {
+
+    std::cout << "=== 热身 " << name << " ===\n";
+    // warm-up: 先单线程跑一次，避免冷启动影响结果
+    func();
+    
+    std::cout << "=== 开始测试: " << name << " ===\n";
+
     auto start = std::chrono::high_resolution_clock::now();
 
     std::vector<std::thread> threads;
@@ -77,8 +84,7 @@ int main() {
     std::cout << "=== 内存分配器高并发压测 ===\n";
     std::cout << "线程数: " << NUM_THREADS << ", 每线程分配次数: " << ALLOC_PER_THREAD << "\n\n";
 
-    run_benchmark("传统无大小释放 (Unsized)", bench_unsized_delete);
     run_benchmark("现代大小感知释放 (Sized)  ", bench_sized_delete);
-
+    run_benchmark("传统无大小释放 (Unsized)", bench_unsized_delete);
     return 0;
 }
