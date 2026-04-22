@@ -67,6 +67,11 @@ foreach(source IN LISTS SOURCES)
         message(STATUS "已为目标 [${target_name}] 链接 fmt 库")
     endif()
 
+    if(${target_name} MATCHES "threads")
+        target_link_libraries(${target_name} Threads::Threads)
+        message(STATUS "已为目标 [${target_name}] 链接线程库")
+    endif()
+
     if(${target_name} MATCHES "allocator_bench")
         # =================================================================
         # 内存分配器压测配置 (ptmalloc vs tcmalloc vs jemalloc)
