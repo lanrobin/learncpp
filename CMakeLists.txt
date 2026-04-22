@@ -1,4 +1,16 @@
 cmake_minimum_required(VERSION 3.30)
+
+find_program(CLANG_CXX_EXECUTABLE NAMES clang++)
+
+if(CLANG_CXX_EXECUTABLE)
+    # 如果找到了 clang++，将其设置为 C++ 编译器
+    set(CMAKE_CXX_COMPILER ${CLANG_CXX_EXECUTABLE})
+    message(STATUS "Using Clang++: ${CLANG_CXX_EXECUTABLE}")
+else()
+    # 如果没找到，CMake 默认会寻找 g++ 或系统默认编译器
+    message(STATUS "Clang++ not found, using default compiler (usually g++)")
+endif()
+
 project(LearnCpp)
 
 # 设定 C++ 标准为 C++23）
