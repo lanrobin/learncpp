@@ -84,6 +84,11 @@ foreach(source IN LISTS SOURCES)
         message(STATUS "已为目标 [${target_name}] 链接线程库")
     endif()
 
+    if(${target_name} MATCHES "io_model")
+        target_link_libraries(${target_name} PRIVATE rt Threads::Threads)
+        message(STATUS "已为目标 [${target_name}] 链接实时库 librt (POSIX AIO 依赖) 和线程库 Threads::Threads")
+    endif()
+
     if(${target_name} MATCHES "allocator_bench")
         # =================================================================
         # 内存分配器压测配置 (ptmalloc vs tcmalloc vs jemalloc)
