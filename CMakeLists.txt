@@ -28,7 +28,7 @@ endif()
 include(FetchContent)
 FetchContent_Declare(
   absl
-  URL https://github.com/abseil/abseil-cpp/archive/refs/tags/20240116.1.tar.gz
+  URL https://github.com/abseil/abseil-cpp/releases/download/20260107.1/abseil-cpp-20260107.1.tar.gz
 )
 FetchContent_MakeAvailable(absl)
 
@@ -36,14 +36,14 @@ FetchContent_MakeAvailable(absl)
 # 自动下载 CTRE (新增的)
 FetchContent_Declare(
     ctre
-    URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.8.1.tar.gz
+    URL https://github.com/hanickadot/compile-time-regular-expressions/archive/refs/tags/v3.10.0.tar.gz
 )
 FetchContent_MakeAvailable(ctre)
 
 
 FetchContent_Declare(
     fmt
-    URL https://github.com/fmtlib/fmt/archive/refs/tags/10.2.1.tar.gz
+    URL https://github.com/fmtlib/fmt/archive/refs/tags/12.1.0.tar.gz
 )
 FetchContent_MakeAvailable(fmt)
 
